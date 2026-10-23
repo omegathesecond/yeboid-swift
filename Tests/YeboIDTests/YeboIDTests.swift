@@ -56,4 +56,24 @@ final class YeboIDTests: XCTestCase {
         store.failSave = true
         do { _ = try await client.refresh(); XCTFail("storage failure must throw") } catch {}
     }
+    @MainActor func testRegistrationRejectsWrongCallbackMissingScopeAndOutage() async throws {
+        var payload = """
+        {"client_id":"app","redirect_uris":["wrong://callback"],"scopes":["openid","profile","offline_access"]}
+        """
+        var status = 200
+        let client = try YeboID(clientID: "app", redirectURI: URL(string: "com.example://callback")!, store: MemoryStore()) { request in
+            XCTAssertEqual(request.url?.path, "/oauth/clients/app/configuration")
+            return (Data(payload.utf8), HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
+        }
+        do { try await client.checkRegistration(); XCTFail("wrong callback must fail") }
+        catch let error as YeboIDError { XCTAssertEqual(error.code, "invalid_registration") }
+        payload = """
+        {"client_id":"app","redirect_uris":["com.example://callback"],"scopes":["openid"]}
+        """
+        do { try await client.checkRegistration(); XCTFail("missing scopes must fail") }
+        catch let error as YeboIDError { XCTAssertEqual(error.code, "invalid_scope") }
+        status = 503
+        do { try await client.checkRegistration(); XCTFail("outage must fail") }
+        catch let error as YeboIDError { XCTAssertEqual(error.status, 503) }
+    }
 }
