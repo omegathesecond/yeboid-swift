@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.gradle/
+.kotlin/
+.build/
+.swiftpm/
+local.properties
+__pycache__/
+*.egg-info/
+.venv/
+.DS_Store
+.env*

@@ -1,0 +1,9 @@
+# YeboID Swift / iOS and macOS
+
+Read AGENTS.md and README.md in this repository.
+
+- Platform selection: https://docs.yeboid.com/platforms
+- Agent guide: https://docs.yeboid.com/ai-agents
+- Machine-readable SDK catalog: https://docs.yeboid.com/sdk-manifest.json
+
+Use ASWebAuthenticationSession and Keychain. Keep a single @MainActor YeboID instance and a presentation-context provider alive. Register a reverse-domain custom URL scheme; this SDK rejects HTTPS callbacks. Concurrent mutations throw operation_in_progress. UserInfo supplies identity; this SDK does not validate ID tokens for application use.
